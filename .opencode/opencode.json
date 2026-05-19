@@ -1,0 +1,36 @@
+{
+  "name": "acme-agents",
+  "version": "1.0.0",
+  "description": "Security agent ecosystem for ACME Demo e-commerce application",
+  "agents": [
+    "agents/security-auditor.md",
+    "agents/code-reviewer.md",
+    "agents/pentester.md",
+    "agents/dependency-scanner.json",
+    "agents/compliance-checker.json"
+  ],
+  "subagents": [
+    "subagents/sql-injection-tester.md",
+    "subagents/xss-scanner.json",
+    "subagents/auth-flow-tester.md"
+  ],
+  "skills": [
+    "skills/vuln-pattern-matching.json",
+    "skills/report-generation.md",
+    "skills/api-testing.json"
+  ],
+  "plugins": [
+    "plugins/db-inspector.toml",
+    "plugins/log-analyzer.json"
+  ],
+  "hooks": [
+    "hooks/pre-commit-security.json",
+    "hooks/post-scan-notify.md"
+  ],
+  "settings": {
+    "default_agent": "security-auditor",
+    "scan_timeout": 300,
+    "max_concurrent_subagents": 3,
+    "report_output": "./reports"
+  }
+}

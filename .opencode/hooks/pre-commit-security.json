@@ -1,0 +1,71 @@
+{
+  "name": "pre-commit-security",
+  "description": "Pre-commit hook that blocks commits containing hardcoded secrets or known vulnerability patterns",
+  "version": "1.0.0",
+  "type": "hook",
+  "trigger": "pre-commit",
+  "enabled": true,
+  "config": {
+    "block_patterns": [
+      {
+        "name": "hardcoded_jwt_secret",
+        "pattern": "JWT_SECRET\\s*=\\s*['\"][^'\"]+['\"]",
+        "message": "Hardcoded JWT secret detected. Use environment variables instead.",
+        "severity": "critical"
+      },
+      {
+        "name": "hardcoded_api_key",
+        "pattern": "(?:api_key|apiKey|API_KEY)\\s*=\\s*['\"][a-zA-Z0-9_]{16,}['\"]",
+        "message": "Hardcoded API key detected. Use a secrets manager.",
+        "severity": "critical"
+      },
+      {
+        "name": "plaintext_password",
+        "pattern": "password\\s*:\\s*['\"][^'\"]{3,}['\"]",
+        "message": "Plaintext password in source. Use bcrypt or argon2.",
+        "severity": "critical"
+      },
+      {
+        "name": "sql_string_concat",
+        "pattern": "(?:SELECT|INSERT|UPDATE|DELETE).*\\$\\{",
+        "message": "SQL query with string interpolation. Use parameterized queries.",
+        "severity": "critical"
+      },
+      {
+        "name": "dangerously_set_inner_html",
+        "pattern": "dangerouslySetInnerHTML",
+        "message": "dangerouslySetInnerHTML detected. Ensure content is sanitized.",
+        "severity": "high"
+      },
+      {
+        "name": "eval_usage",
+        "pattern": "\\beval\\s*\\(",
+        "message": "eval() detected. This is a code injection risk.",
+        "severity": "critical"
+      },
+      {
+        "name": "cors_wildcard",
+        "pattern": "origin\\s*:\\s*['\"]\\*['\"]",
+        "message": "CORS wildcard origin. Restrict to specific domains.",
+        "severity": "medium"
+      }
+    ],
+    "allowed_files": [
+      "*.md",
+      "*.json",
+      ".gitignore",
+      ".env.example"
+    ],
+    "fail_on": ["critical", "high"]
+  },
+  "actions": {
+    "on_block": {
+      "type": "deny",
+      "message": "Commit blocked by security hook. Fix the issues above and try again."
+    },
+    "on_pass": {
+      "type": "allow",
+      "message": "Security checks passed."
+    }
+  }
+}

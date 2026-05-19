@@ -1,0 +1,68 @@
+{
+  "name": "vuln-pattern-matching",
+  "description": "Regex-based vulnerability pattern detection for ACME Demo",
+  "version": "1.0.0",
+  "type": "skill",
+  "patterns": {
+    "sql_injection": {
+      "regex": ["(?:db\\.(?:exec|prepare)\\s*\\(\\s*[`'\"].*\\$\\{)", "(?:['\"].*\\+\\s*\\w+\\s*\\+\\s*['\"].*SELECT|INSERT|UPDATE|DELETE)"],
+      "severity": "critical",
+      "cwe": "CWE-89",
+      "description": "SQL query constructed with string interpolation or concatenation"
+    },
+    "xss_dangerously_set": {
+      "regex": ["dangerouslySetInnerHTML\\s*=\\s*\\{\\{\\s*__html\\s*:"],
+      "severity": "high",
+      "cwe": "CWE-79",
+      "description": "React dangerouslySetInnerHTML used with potentially unsanitized content"
+    },
+    "hardcoded_secret": {
+      "regex": ["(?:JWT_SECRET|API_KEY|SECRET_KEY|PASSWORD)\\s*=\\s*['\"][^'\"]{4,}['\"]"],
+      "severity": "critical",
+      "cwe": "CWE-798",
+      "description": "Secret or credential hardcoded in source code"
+    },
+    "path_traversal": {
+      "regex": ["path\\.join\\s*\\([^)]*req\\.(params|query|body)"],
+      "severity": "high",
+      "cwe": "CWE-22",
+      "description": "User input used in file path construction without validation"
+    },
+    "ssrf": {
+      "regex": ["(?:fetch|axios|request)\\s*\\(\\s*(?:req\\.(body|query)|webhookUrl|url)"],
+      "severity": "high",
+      "cwe": "CWE-918",
+      "description": "Server-side HTTP request to user-supplied URL"
+    },
+    "prototype_pollution": {
+      "regex": ["for\\s*\\(\\s*(?:const|let|var)\\s+\\w+\\s+in\\s+\\w+\\s*\\)"],
+      "severity": "high",
+      "cwe": "CWE-1321",
+      "description": "Object iteration without __proto__ guard"
+    },
+    "cors_wildcard": {
+      "regex": ["cors\\s*\\(\\s*\\{[^}]*origin\\s*:\\s*['\"]\\*['\"]"],
+      "severity": "medium",
+      "cwe": "CWE-942",
+      "description": "CORS configured with wildcard origin"
+    },
+    "plaintext_password": {
+      "regex": ["(?:password|passwd)\\s*:\\s*user\\.(?:password|passwd)"],
+      "severity": "critical",
+      "cwe": "CWE-256",
+      "description": "Password stored or transmitted in plaintext"
+    },
+    "jwt_no_expiry": {
+      "regex": ["jwt\\.sign\\s*\\([^)]+\\)\\s*(?!.*expiresIn)"],
+      "severity": "medium",
+      "cwe": "CWE-613",
+      "description": "JWT token created without expiration"
+    },
+    "stack_trace_leak": {
+      "regex": ["stack\\s*:\\s*err\\.stack"],
+      "severity": "medium",
+      "cwe": "CWE-209",
+      "description": "Stack trace included in error response"
+    }
+  }
+}

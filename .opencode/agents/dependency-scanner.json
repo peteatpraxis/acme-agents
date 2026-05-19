@@ -1,0 +1,67 @@
+{
+  "name": "dependency-scanner",
+  "description": "Scans project dependencies for known CVEs and outdated packages",
+  "version": "1.0.0",
+  "type": "agent",
+  "target": "acme-demo",
+  "triggers": ["on:push", "on:schedule:daily"],
+  "config": {
+    "package_files": ["package.json", "client/package.json"],
+    "severity_threshold": "medium",
+    "cve_database": "https://api.github.com/advisories",
+    "known_vulnerabilities": [
+      {
+        "package": "jsonwebtoken",
+        "version": "8.5.1",
+        "cve": "CVE-2022-23529",
+        "severity": "high",
+        "description": "Insecure implementation of key retrieval allowing remote attackers to verify and forge JWTs",
+        "fixed_in": "9.0.0"
+      },
+      {
+        "package": "lodash",
+        "version": "4.17.15",
+        "cve": "CVE-2020-8203",
+        "severity": "high",
+        "description": "Prototype pollution via zipObjectDeep",
+        "fixed_in": "4.17.20"
+      },
+      {
+        "package": "express",
+        "version": "4.17.1",
+        "cve": "CVE-2024-29041",
+        "severity": "medium",
+        "description": "Open redirect vulnerability in express.static",
+        "fixed_in": "4.19.2"
+      },
+      {
+        "package": "axios",
+        "version": "0.21.1",
+        "cve": "CVE-2021-3749",
+        "severity": "high",
+        "description": "Inefficient regular expression complexity causing ReDoS",
+        "fixed_in": "0.21.2"
+      },
+      {
+        "package": "node-fetch",
+        "version": "2.6.1",
+        "cve": "CVE-2022-0235",
+        "severity": "medium",
+        "description": "Exposure of sensitive information to an unauthorized actor",
+        "fixed_in": "2.6.7"
+      },
+      {
+        "package": "react-scripts",
+        "version": "4.0.3",
+        "cve": "CVE-2021-23375",
+        "severity": "medium",
+        "description": "Webpack dev server vulnerability",
+        "fixed_in": "5.0.0"
+      }
+    ]
+  },
+  "output": {
+    "format": "json",
+    "file": "reports/dependency-scan.json"
+  }
+}

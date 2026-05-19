@@ -1,0 +1,76 @@
+{
+  "name": "log-analyzer",
+  "description": "Parses application logs for security-relevant events",
+  "version": "1.0.0",
+  "type": "plugin",
+  "target": "acme-demo",
+  "config": {
+    "log_sources": [
+      {
+        "name": "express_morgan",
+        "path": "../acme-demo/logs/access.log",
+        "format": "combined"
+      },
+      {
+        "name": "application_errors",
+        "path": "../acme-demo/logs/error.log",
+        "format": "json"
+      }
+    ],
+    "alert_rules": [
+      {
+        "name": "sql_injection_attempt",
+        "pattern": "(?:UNION|SELECT|DROP|INSERT|UPDATE|DELETE|OR\\s+'1'='1|--|;)",
+        "source": "access.log",
+        "severity": "critical",
+        "description": "Potential SQL injection attempt detected in request"
+      },
+      {
+        "name": "path_traversal_attempt",
+        "pattern": "(?:\\.\\./|\\.\\.\\\\|%2e%2e)",
+        "source": "access.log",
+        "severity": "high",
+        "description": "Potential path traversal attempt in URL"
+      },
+      {
+        "name": "auth_failure_spike",
+        "pattern": "401|403",
+        "threshold": 10,
+        "window": "5m",
+        "source": "access.log",
+        "severity": "medium",
+        "description": "Multiple authentication failures detected"
+      },
+      {
+        "name": "ssrf_attempt",
+        "pattern": "(?:169\\.254\\.|127\\.0\\.0\\.1|localhost|metadata)",
+        "source": "error.log",
+        "severity": "critical",
+        "description": "Potential SSRF attempt via webhook URL"
+      },
+      {
+        "name": "error_stack_exposure",
+        "pattern": "stack.*err\\.stack",
+        "source": "error.log",
+        "severity": "medium",
+        "description": "Stack trace included in error response"
+      },
+      {
+        "name": "admin_access_attempt",
+        "pattern": "role.*admin",
+        "source": "error.log",
+        "severity": "high",
+        "description": "Non-admin user attempted admin operation"
+      }
+    ],
+    "aggregation": {
+      "enabled": true,
+      "interval": "1h",
+      "group_by": ["rule_name", "source_ip", "severity"]
+    }
+  },
+  "output": {
+    "format": "json",
+    "file": "reports/log-analysis.json"
+  }
+}

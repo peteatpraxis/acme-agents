@@ -1,0 +1,58 @@
+{
+  "name": "xss-scanner",
+  "description": "Detects cross-site scripting vulnerabilities in frontend and backend code",
+  "version": "1.0.0",
+  "type": "subagent",
+  "parent": "security-auditor",
+  "target": "acme-demo",
+  "config": {
+    "scan_patterns": [
+      {
+        "name": "dangerouslySetInnerHTML",
+        "pattern": "dangerouslySetInnerHTML\\s*=\\s*\\{\\{\\s*__html\\s*:",
+        "severity": "high",
+        "files": ["client/src/Login.jsx"]
+      },
+      {
+        "name": "unsanitized_jsx_interpolation",
+        "pattern": "\\{\\s*\\w+\\s*\\}",
+        "context": "user-controlled variable rendered in JSX",
+        "severity": "medium",
+        "files": ["client/src/Products.jsx"]
+      },
+      {
+        "name": "response_html_injection",
+        "pattern": "res\\.(send|json)\\(.*req\\.(body|query|params)",
+        "severity": "high",
+        "files": ["server/routes/*.js"]
+      },
+      {
+        "name": "error_message_reflection",
+        "pattern": "error.*message.*stack",
+        "severity": "medium",
+        "files": ["server/index.js", "server/routes/*.js"]
+      }
+    ],
+    "dom_sinks": [
+      "innerHTML",
+      "outerHTML",
+      "document.write",
+      "document.writeln",
+      "dangerouslySetInnerHTML",
+      "eval",
+      "setTimeout(string)",
+      "setInterval(string)"
+    ],
+    "sanitizers_to_check": [
+      "DOMPurify",
+      "sanitize-html",
+      "xss",
+      "escape",
+      "encodeURIComponent"
+    ]
+  },
+  "output": {
+    "format": "json",
+    "file": "reports/xss-scan.json"
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(*)",
+      "Bash(git:*)",
+      "Bash(npm:*)",
+      "Bash(node:*)"
+    ],
+    "deny": [
+      "Write(*)",
+      "Bash(rm:*)",
+      "Bash(sudo:*)"
+    ]
+  },
+  "model": "claude-sonnet-4-20250514",
+  "env": {
+    "ACME_DEMO_PATH": "../acme-demo",
+    "SCAN_MODE": "full",
+    "REPORT_FORMAT": "markdown"
+  },
+  "custom_instructions": "Always reference OWASP Top 10 2021 and CWE database when classifying vulnerabilities. Include severity ratings based on CVSS v3.1."
+}

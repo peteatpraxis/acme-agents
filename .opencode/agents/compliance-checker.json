@@ -1,0 +1,105 @@
+{
+  "name": "compliance-checker",
+  "description": "Validates ACME Demo against OWASP Top 10 2021 and CWE standards",
+  "version": "1.0.0",
+  "type": "agent",
+  "target": "acme-demo",
+  "triggers": ["on:push", "on:pull_request"],
+  "frameworks": {
+    "owasp_top_10_2021": {
+      "A01:2021_broken_access_control": {
+        "checks": [
+          "IDOR on product and order endpoints",
+          "Missing authorization middleware on routes",
+          "Unauthenticated access to /api/auth/users"
+        ],
+        "cwe_mapping": ["CWE-284", "CWE-639"],
+        "status": "failing"
+      },
+      "A02:2021_cryptographic_failures": {
+        "checks": [
+          "Plaintext password storage",
+          "Hardcoded JWT secret",
+          "No password hashing algorithm"
+        ],
+        "cwe_mapping": ["CWE-256", "CWE-798"],
+        "status": "failing"
+      },
+      "A03:2021_injection": {
+        "checks": [
+          "SQL injection in auth routes",
+          "SQL injection in product search",
+          "Prototype pollution in auth middleware"
+        ],
+        "cwe_mapping": ["CWE-89", "CWE-1321"],
+        "status": "failing"
+      },
+      "A04:2021_insecure_design": {
+        "checks": [
+          "Race condition in checkout flow",
+          "Client-side price trust",
+          "No account lockout mechanism"
+        ],
+        "cwe_mapping": ["CWE-362", "CWE-840"],
+        "status": "failing"
+      },
+      "A05:2021_security_misconfiguration": {
+        "checks": [
+          "CORS wildcard origin",
+          "Stack trace exposure in errors",
+          "No security headers (helmet)"
+        ],
+        "cwe_mapping": ["CWE-16", "CWE-209"],
+        "status": "failing"
+      },
+      "A06:2021_vulnerable_components": {
+        "checks": [
+          "jsonwebtoken 8.5.1 (CVE-2022-23529)",
+          "lodash 4.17.15 (CVE-2020-8203)",
+          "axios 0.21.1 (CVE-2021-3749)"
+        ],
+        "cwe_mapping": ["CWE-1104"],
+        "status": "failing"
+      },
+      "A07:2021_auth_failures": {
+        "checks": [
+          "JWT alg:none acceptance",
+          "No token expiration",
+          "Password field type text"
+        ],
+        "cwe_mapping": ["CWE-287", "CWE-613"],
+        "status": "failing"
+      },
+      "A08:2021_data_integrity": {
+        "checks": [
+          "SSRF via webhook URL",
+          "Client-supplied checkout prices",
+          "Insecure deserialization"
+        ],
+        "cwe_mapping": ["CWE-918", "CWE-345"],
+        "status": "failing"
+      },
+      "A09:2021_logging_monitoring": {
+        "checks": [
+          "No security event logging",
+          "No intrusion detection",
+          "No audit trail for orders"
+        ],
+        "cwe_mapping": ["CWE-778"],
+        "status": "failing"
+      },
+      "A10:2021_ssrf": {
+        "checks": [
+          "Unvalidated webhook URL in checkout",
+          "Server-side fetch of user-supplied URLs"
+        ],
+        "cwe_mapping": ["CWE-918"],
+        "status": "failing"
+      }
+    }
+  },
+  "output": {
+    "format": "json",
+    "file": "reports/compliance-report.json"
+  }
+}

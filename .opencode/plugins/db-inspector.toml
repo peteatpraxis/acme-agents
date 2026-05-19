@@ -1,0 +1,61 @@
+# DB Inspector Plugin
+# Inspects SQLite database schema and data for security issues
+
+[plugin]
+name = "db-inspector"
+version = "1.0.0"
+description = "SQLite database inspection for ACME Demo security analysis"
+target = "acme-demo"
+
+[database]
+path = "../acme-demo/ecommerce.db"
+driver = "better-sqlite3"
+readonly = true
+
+[inspections]
+
+[inspections.password_storage]
+description = "Check if passwords are stored in plaintext"
+query = "SELECT id, username, password, length(password) as pw_length FROM users"
+expected = "Passwords should be hashed with bcrypt or argon2"
+severity = "critical"
+cwe = "CWE-256"
+
+[inspections.api_key_exposure]
+description = "Check if API keys are stored in the database"
+query = "SELECT id, username, api_key FROM users WHERE api_key IS NOT NULL"
+expected = "API keys should be hashed or stored in a secrets manager"
+severity = "high"
+cwe = "CWE-798"
+
+[inspections.missing_constraints]
+description = "Check for missing database constraints"
+query = "SELECT name, sql FROM sqlite_master WHERE type='table'"
+expected = "Tables should have UNIQUE, NOT NULL, and CHECK constraints"
+severity = "medium"
+cwe = "CWE-20"
+
+[inspections.foreign_keys]
+description = "Check if foreign key constraints are enforced"
+query = "PRAGMA foreign_keys"
+expected = "Foreign keys should be enabled (value = 1)"
+severity = "medium"
+cwe = "CWE-284"
+
+[inspections.user_privileges]
+description = "Check user role distribution"
+query = "SELECT role, COUNT(*) as count FROM users GROUP BY role"
+expected = "Admin accounts should be minimal and audited"
+severity = "low"
+cwe = "CWE-250"
+
+[inspections.order_integrity]
+description = "Check for orders with mismatched totals"
+query = "SELECT o.id, o.total, SUM(oi.price * oi.quantity) as calculated FROM orders o JOIN order_items oi ON o.id = oi.order_id GROUP BY o.id HAVING o.total != calculated"
+expected = "Order totals should match calculated line items"
+severity = "high"
+cwe = "CWE-345"
+
+[output]
+format = "json"
+file = "reports/db-inspection.json"
